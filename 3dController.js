@@ -1,5 +1,8 @@
 // 3d controller: Controlls the 3d rendering for the application
-// modified from: { Will source once I get it off my other machine }
+// Arthur Wuterich
+// 6-5-2014
+// modified from: http://www.playfuljs.com/a-first-person-engine-in-265-lines/
+// source       : http://www.playfuljs.com/demos/raycaster/
 var CIRCLE = Math.PI * 2;
 var MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)
 
