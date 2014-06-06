@@ -17,6 +17,7 @@ function Player(x, y, direction, camera ) {
 
 	this.position  = { "x":x, "y":y };
 	this.direction = direction;
+	this.arm = new Bitmap( "cocktail_arm.png" );
 	this.camera = camera;
 }
 
@@ -33,12 +34,26 @@ Player.prototype.walk = function(distance, map) {
 	if (map.get(this.position.x, this.position.y + dy) <= 0) this.position.y += dy;
 };
 
+// SideStep
+Player.prototype.sidestep = function(distance, map) {
+	var dx = Math.cos(this.direction-(Math.PI/2)) * distance;
+	var dy = Math.sin(this.direction-(Math.PI/2)) * distance;
+	if (map.get(this.position.x + dx, this.position.y) <= 0) this.position.x += dx;
+	if (map.get(this.position.x, this.position.y + dy) <= 0) this.position.y += dy;
+};
+
 // Handler for controlling the player through control states
 Player.prototype.update = function(controls, map, seconds) {
 
 	// Rotation
-	if (controls.states.left) this.rotate(-Math.PI * seconds);
-	if (controls.states.right) this.rotate(Math.PI * seconds);
+	//if (controls.states.left) this.rotate(-Math.PI * seconds);
+	//if (controls.states.right) this.rotate(Math.PI * seconds);
+
+	this.rotate( Math.PI * controls.getMouseMovement() );
+
+	if (controls.states.left) this.sidestep( 3 * seconds, map );
+	if (controls.states.right) this.sidestep( -3 * seconds, map );
+
 
 	// Walking
 	if (controls.states.forward) this.walk(3 * seconds, map);

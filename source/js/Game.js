@@ -31,6 +31,10 @@ var controls = null;
 var camera = null;
 var loop = null;
 var renderer = null;
+var armX = 0;
+var armY = 0;
+var armW = 1;
+var armH = 1;
 
 $("document").ready( function(){
 	display = document.getElementById('display');
@@ -39,12 +43,18 @@ $("document").ready( function(){
 	controls = new Controls();
 	map = new Map(32);
 	renderer = new Renderer( display, 300, 10 ); 
+	renderer.lightRange = 5;
+	renderer.fogColor = "#333333";
 	loop = new GameLoop();
+	armX = display.width/1.75;
+	armY = display.height/1.60;
+	armW = armH = 0.25;
 
 	map.randomize();
 
 	loop.start(function frame(seconds) {
 		player.update( controls, map, seconds );
 		renderer.renderScene( player.camera, map );
+		renderer.canvasContext.drawImage( player.arm.image, armX, armY, player.arm.image.width*armW, player.arm.image.height*armH );
 	});
 })

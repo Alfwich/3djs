@@ -6,7 +6,7 @@
 function Map(size) {
 	this.size = size;
 	this.wallGrid = new Uint8Array(size * size);
-	this.skybox = new Bitmap('deathvalley_panorama.jpg', 4000, 1290);
+	this.skybox = new Bitmap('interior_background.png');
 	this.wallTexture = new Bitmap('wall_texture.jpg', 1024, 1024);
 	this.light = 0;
 }

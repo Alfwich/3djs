@@ -92,6 +92,10 @@ Renderer.prototype.project = function(height, angle, distance) {
 	}; 
 };
 
+// Will clear the screen with the floor color
+Renderer.prototype.clear = function(){
+}
+
 // Will render a scene given a provided map and a camera
 Renderer.prototype.renderScene = function( camera, map )
 {

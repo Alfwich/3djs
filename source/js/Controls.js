@@ -5,8 +5,11 @@
 // Creates a new control object which monitors the state of the controls in the 
 // application
 function Controls() {
-	this.codes  = { 37: 'left', 39: 'right', 38: 'forward', 40: 'backward' };
+	this.codes  = { 65: 'left', 68: 'right', 87: 'forward', 83: 'backward' };
 	this.states = { 'left': false, 'right': false, 'forward': false, 'backward': false };
+	this.mouseMoveX = 0;
+	this.mouseSensitivity = 180;
+	document.addEventListener('mousemove', this.onMouse.bind(this), false);
 	document.addEventListener('keydown', this.onKey.bind(this, true), false);
 	document.addEventListener('keyup', this.onKey.bind(this, false), false);
 	document.addEventListener('touchstart', this.onTouch.bind(this), false);
@@ -37,5 +40,16 @@ Controls.prototype.onKey = function(val, e) {
 	e.preventDefault && e.preventDefault();
 	e.stopPropagation && e.stopPropagation();
 };
+
+// Mouse handler
+Controls.prototype.onMouse = function(e) {
+	this.mouseMoveX = e.webkitMovementX;
+};
+
+Controls.prototype.getMouseMovement = function(){
+	var tmpMove = this.mouseMoveX / this.mouseSensitivity;
+	this.mouseMoveX = 0;
+	return tmpMove;
+}
 
 
