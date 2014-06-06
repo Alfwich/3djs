@@ -25,12 +25,19 @@ GameLoop.prototype.frame = function(time) {
 };
 
 $("document").ready( function(){
-	display = document.getElementById('display');
+	display = $("#display")[0];
+
+	// Player Object
 	player = new Player(15.3, -1.2, Math.PI * 0.3 );
 	player.camera = new Camera( player.position.x, player.position.y, player.direction, Math.PI * 0.4 );
 	controls = new Controls();
-	map = new Map(32);
-	renderer = new Renderer( display, 300, 10 ); 
+
+	// Map
+	map = new Map(10);
+
+	// Renderer
+	renderer = new Renderer( display, 300 ); 
+	renderer.renderRange = 10;
 	renderer.lightRange = 5;
 	renderer.fogColor = "#333333";
 	loop = new GameLoop();
@@ -43,7 +50,6 @@ $("document").ready( function(){
 	playerWeapon = new StaticObject( "cocktail_arm.png" );
 	playerWeapon.setPosition( display.width/1.75, display.height/1.60 );
 	playerWeapon.setScale( 0.25, 0.25 );
-
 	frontList.addObject( playerWeapon );
 
 	map.randomize();
@@ -59,6 +65,5 @@ $("document").ready( function(){
 		// Render static objects
 		renderer.renderList( frontList );
 		renderer.renderList( backList );
-		renderer.canvasContext.drawImage( player.arm.image, armX, armY, player.arm.image.width*armW, player.arm.image.height*armH );
 	});
 })

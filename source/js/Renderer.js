@@ -3,24 +3,31 @@
 // 6/5/2014
 
 // Constructor for renderer object
-var Renderer = function( canvasContext, resolution, renderRange )
+var Renderer = function( canvasContext, resolution )
 {
 	// Setup rendering attributes
 	this.size = { "x": window.innerWidth * 0.5, "y": window.innerHeight * 0.5 };
-	this.renderRange = renderRange;
+	this.renderRange = 10;
 	this.resolution = resolution;
-	this.lightRange = 5;
 	this.spacing = this.size.x/resolution;
 	this.scale = (this.size.x+this.size.y)/1200;
 	this.tracer = new RayTracer();
 
+	// Fog
 	this.fogColor = "#000000";
+	this.fogRange = 5;
 
 	// Setup canvas
 	this.canvasContext = canvasContext.getContext( "2d" );
 	canvasContext.width = this.size.x;
 	canvasContext.height = this.size.y;
 }
+
+Renderer.prototype.changeResolution = function( resolution ){
+	this.resolution = resolution;
+	this.spacing = this.size.x/this.resolution;
+}
+
 
 // Draws the sky 
 Renderer.prototype.drawSky = function(camera, map) {
@@ -75,7 +82,7 @@ Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 			canvasContext.drawImage(texture.image, textureX, 0, 1, texture.height, left, wall.top, width, wall.height);
 			
 			canvasContext.fillStyle = this.fogColor;
-			canvasContext.globalAlpha = Math.max((step.distance + step.shading) / this.lightRange - map.light, 0);
+			canvasContext.globalAlpha = Math.max((step.distance + step.shading) / this.fogRange - map.light, 0);
 			canvasContext.fillRect(left, wall.top, width, wall.height);
 		}
 	}
@@ -97,17 +104,15 @@ Renderer.prototype.renderList = function( list ){
 	if( list.hasObjects() )
 	{
 		var objects = list.getObjects();
-		console.log( objects );
 		for( index in objects )
 		{
 			var sObj = objects[index]; 
 			this.canvasContext.drawImage( 
 				sObj.bitmap.image, 
-				//sObj.position.x + sObj.offset.x, 
-				//sObj.position.y + sObj.offset.y
-				100,100,100,100 
-				//sObj.bitmap.width  * sObj.scale.x, 
-				//sObj.bitmap.height * sObj.scale.y
+				sObj.position.x + sObj.offset.x, 
+				sObj.position.y + sObj.offset.y,
+				sObj.bitmap.image.width  * sObj.scale.x, 
+				sObj.bitmap.image.height * sObj.scale.y
 			);
 		}
 	}
