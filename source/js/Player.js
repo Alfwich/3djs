@@ -17,7 +17,6 @@ function Player(x, y, direction, camera ) {
 
 	this.position  = { "x":x, "y":y };
 	this.direction = direction;
-	this.arm = new Bitmap( "cocktail_arm.png" );
 	this.camera = camera;
 }
 

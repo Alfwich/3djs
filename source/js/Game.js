@@ -24,18 +24,6 @@ GameLoop.prototype.frame = function(time) {
 	requestAnimationFrame(this.frame);
 };
 
-var display = null;
-var player = null;
-var map = null;
-var controls = null;
-var camera = null;
-var loop = null;
-var renderer = null;
-var armX = 0;
-var armY = 0;
-var armW = 1;
-var armH = 1;
-
 $("document").ready( function(){
 	display = document.getElementById('display');
 	player = new Player(15.3, -1.2, Math.PI * 0.3 );
@@ -46,15 +34,31 @@ $("document").ready( function(){
 	renderer.lightRange = 5;
 	renderer.fogColor = "#333333";
 	loop = new GameLoop();
-	armX = display.width/1.75;
-	armY = display.height/1.60;
-	armW = armH = 0.25;
+
+	// Render Lists
+	backList = new RenderList();
+	frontList = new RenderList();
+
+	// Player Arm
+	playerWeapon = new StaticObject( "cocktail_arm.png" );
+	playerWeapon.setPosition( display.width/1.75, display.height/1.60 );
+	playerWeapon.setScale( 0.25, 0.25 );
+
+	frontList.addObject( playerWeapon );
 
 	map.randomize();
 
 	loop.start(function frame(seconds) {
+		
+		// Update the player
 		player.update( controls, map, seconds );
+
+		// Render the scene through the player's camera
 		renderer.renderScene( player.camera, map );
+
+		// Render static objects
+		renderer.renderList( frontList );
+		renderer.renderList( backList );
 		renderer.canvasContext.drawImage( player.arm.image, armX, armY, player.arm.image.width*armW, player.arm.image.height*armH );
 	});
 })

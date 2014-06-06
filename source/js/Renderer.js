@@ -92,8 +92,25 @@ Renderer.prototype.project = function(height, angle, distance) {
 	}; 
 };
 
-// Will clear the screen with the floor color
-Renderer.prototype.clear = function(){
+// Will render a list of static objects
+Renderer.prototype.renderList = function( list ){
+	if( list.hasObjects() )
+	{
+		var objects = list.getObjects();
+		console.log( objects );
+		for( index in objects )
+		{
+			var sObj = objects[index]; 
+			this.canvasContext.drawImage( 
+				sObj.bitmap.image, 
+				//sObj.position.x + sObj.offset.x, 
+				//sObj.position.y + sObj.offset.y
+				100,100,100,100 
+				//sObj.bitmap.width  * sObj.scale.x, 
+				//sObj.bitmap.height * sObj.scale.y
+			);
+		}
+	}
 }
 
 // Will render a scene given a provided map and a camera
