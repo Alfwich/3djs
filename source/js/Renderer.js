@@ -28,7 +28,6 @@ Renderer.prototype.changeResolution = function( resolution ){
 	this.spacing = this.size.x/this.resolution;
 }
 
-
 // Draws the sky 
 Renderer.prototype.drawSky = function(camera, map) {
 	var width = this.size.x * (CIRCLE / camera.fov);
@@ -41,12 +40,6 @@ Renderer.prototype.drawSky = function(camera, map) {
 		this.canvasContext.drawImage(map.skybox.image, left + width, 0, width, this.size.y);
 	}
 
-	if (map.light > 0) 
-	{
-		this.canvasContext.fillStyle = '#ffffff';
-		this.canvasContext.globalAlpha = ambient * 0.1;
-		this.canvasContext.fillRect(0, this.size.y * 0.5, this.size.x, this.size.y * 0.5);
-	}
 	this.canvasContext.restore();
 };
 
@@ -55,7 +48,6 @@ Renderer.prototype.drawColumns = function(camera, map) {
 	this.canvasContext.save();
 	for (var column = 0; column < this.resolution; column++) {
 		var angle = camera.fov * (column / this.resolution - 0.5);
-		//var ray = map.cast( camera, camera.direction + angle, this.renderRange);
 		var ray = this.tracer.cast( map, camera, camera.direction + angle, this.renderRange);
 		this.drawColumn(column, ray, angle, map);
 	}

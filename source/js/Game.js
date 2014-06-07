@@ -53,6 +53,7 @@ $("document").ready( function(){
 	frontList.addObject( playerWeapon );
 
 	map.randomize();
+	console.log( map );
 
 	loop.start(function frame(seconds) {
 		
