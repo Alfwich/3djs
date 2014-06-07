@@ -33,11 +33,11 @@ $("document").ready( function(){
 	controls = new Controls();
 
 	// Map
-	map = new Map(10);
+	map = new Map(32);
 
 	// Renderer
 	renderer = new Renderer( display, 300 ); 
-	renderer.renderRange = 10;
+	renderer.renderRange = 20;
 	renderer.lightRange = 5;
 	renderer.fogColor = "#333333";
 	loop = new GameLoop();

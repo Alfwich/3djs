@@ -9,12 +9,13 @@ function Map(size) {
 	this.skybox = new Bitmap('interior_background.png');
 	this.wallTexture = new Bitmap('wall_texture.jpg', 1024, 1024);
 	this.light = 0;
+	this.scale = 1;
 }
 
-// Returns the status of the wall object in the map at a given (x,y)
+// Returns the height of the wall at the provided (x,y)
 Map.prototype.get = function(x, y) {
-	x = Math.floor(x);
-	y = Math.floor(y);
+	x = Math.floor(Math.floor(x)*this.scale);
+	y = Math.floor(Math.floor(y)*this.scale);
 	if (x < 0 || x > this.size - 1 || y < 0 || y > this.size - 1) return -1;
 	return this.wallGrid[y * this.size + x];
 };
