@@ -5,10 +5,10 @@
 // Creates a new control object which monitors the state of the controls in the 
 // application
 function Controls() {
-	this.codes  = { 65: 'left', 68: 'right', 87: 'forward', 83: 'backward' };
-	this.states = { 'left': false, 'right': false, 'forward': false, 'backward': false };
+	this.codes  = { 65: 'left', 68: 'right', 87: 'forward', 38:"forward", 83: 'backward', 40:"backward", 37:"rotate_left", 39:"rotate_right" };
+	this.states = { 'left': false, 'right': false, 'forward': false, 'backward': false, "rotate_left":false, "rotate_right":false };
 	this.mouseMoveX = 0;
-	this.mouseSensitivity = 360;
+	this.mouseSensitivity = 180;
 	document.addEventListener('mousemove', this.onMouse.bind(this), false);
 	document.addEventListener('keydown', this.onKey.bind(this, true), false);
 	document.addEventListener('keyup', this.onKey.bind(this, false), false);
@@ -21,13 +21,13 @@ function Controls() {
 Controls.prototype.onTouch = function(e) {
 	var t = e.touches[0];
 	this.onTouchEnd(e);
-	if (t.pageY < window.innerHeight * 0.5) this.onKey(true, { keyCode: 38 });
+	if (t.pageY < window.innerHeight * 0.5) this.onKey(true, { keyCode: 87 });
 	else if (t.pageX < window.innerWidth * 0.5) this.onKey(true, { keyCode: 37 });
 	else if (t.pageY > window.innerWidth * 0.5) this.onKey(true, { keyCode: 39 });
 };
 
 Controls.prototype.onTouchEnd = function(e) {
-	this.states = { 'left': false, 'right': false, 'forward': false, 'backward': false };
+	this.states = { 'rotate_left': false, 'rotate_right': false, 'forward': false, 'backward': false };
 	e.preventDefault();
 	e.stopPropagation();
 };
