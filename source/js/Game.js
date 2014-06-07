@@ -28,17 +28,17 @@ $("document").ready( function(){
 	display = $("#display")[0];
 
 	// Player Object
-	player = new Player(15.3, -1.2, Math.PI * 0.3 );
+	player = new Player(16, 16, Math.PI * 0.3 );
 	player.camera = new Camera( player.position.x, player.position.y, player.direction, Math.PI * 0.4 );
 	controls = new Controls();
 
 	// Map
-	map = new Map(10);
+	map = new Map(32);
 
 	// Renderer
 	renderer = new Renderer( display, 300 ); 
-	renderer.renderRange = 10;
-	renderer.lightRange = 5;
+	renderer.renderRange = 20;
+	renderer.fogRange = 20;
 	renderer.fogColor = "#333333";
 	loop = new GameLoop();
 
@@ -47,10 +47,10 @@ $("document").ready( function(){
 	frontList = new RenderList();
 
 	// Player Arm
-	playerWeapon = new StaticObject( "cocktail_arm.png" );
-	playerWeapon.setPosition( display.width/1.75, display.height/1.60 );
-	playerWeapon.setScale( 0.25, 0.25 );
-	frontList.addObject( playerWeapon );
+	playerArm = new StaticObject( "party_arm.png" );
+	playerArm.setPosition( display.width/1.75, display.height/1.60 );
+	playerArm.setScale( 1.0, 1.0 );
+	frontList.addObject( playerArm );
 
 	map.randomize();
 	console.log( map );
