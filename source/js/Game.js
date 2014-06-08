@@ -33,7 +33,7 @@ $("document").ready( function(){
 	controls = new Controls();
 
 	// Map
-	map = new Map(10);
+	map = new Map(32);
 
 	// Renderer
 	renderer = new Renderer( display, 300 ); 
@@ -47,13 +47,14 @@ $("document").ready( function(){
 	frontList = new RenderList();
 
 	// Player Arm
+	/*
 	playerWeapon = new StaticObject( "cocktail_arm.png" );
 	playerWeapon.setPosition( display.width/1.75, display.height/1.60 );
 	playerWeapon.setScale( 0.25, 0.25 );
 	frontList.addObject( playerWeapon );
+	*/
 
 	map.randomize();
-	console.log( map );
 
 	loop.start(function frame(seconds) {
 		

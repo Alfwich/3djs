@@ -8,6 +8,7 @@ function Map(size) {
 	this.wallGrid = new Uint8Array(size * size);
 	this.skybox = new Bitmap('interior_background.png');
 	this.wallTexture = new Bitmap('wall_texture.jpg', 1024, 1024);
+	this.scale = 1/2;
 	this.light = 0;
 }
 
