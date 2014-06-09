@@ -45,8 +45,8 @@ Player.prototype.sidestep = function(distance, map) {
 Player.prototype.update = function(controls, map, seconds) {
 
 	// Rotation
-	if (controls.states.rotate_left) this.rotate(-Math.PI * seconds);
-	if (controls.states.rotate_right) this.rotate(Math.PI * seconds);
+	if (controls.states.rotate_left) this.rotate(-Math.PI/4 * seconds);
+	if (controls.states.rotate_right) this.rotate(Math.PI/4 * seconds);
 
 	//this.rotate( Math.PI * controls.getMouseMovement() );
 

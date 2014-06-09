@@ -12,6 +12,7 @@ var Renderer = function( canvasContext, resolution )
 	this.spacing = this.size.x/resolution;
 	this.scale = (this.size.x+this.size.y)/1200;
 	this.tracer = new RayTracer();
+	this.renderZIndexes = new Float32Array( resolution );
 
 	// Fog
 	this.fogColor = "#000000";
@@ -25,6 +26,7 @@ var Renderer = function( canvasContext, resolution )
 
 Renderer.prototype.changeResolution = function( resolution ){
 	this.resolution = resolution;
+	this.renderZIndexes = new Float32Array( resolution );
 	this.spacing = this.size.x/this.resolution;
 }
 
@@ -47,8 +49,9 @@ Renderer.prototype.drawSky = function(camera, map) {
 Renderer.prototype.drawColumns = function(camera, map) {
 	this.canvasContext.save();
 	for (var column = 0; column < this.resolution; column++) {
+		this.renderZIndexes[column] = Infinity;
 		var angle = camera.fov * (column / this.resolution - 0.5);
-		var ray = this.tracer.cast( map, camera, camera.direction + angle, this.renderRange);
+		var ray = this.tracer.cast( map, camera, angle, this.renderRange);
 		this.drawColumn(column, ray, angle, map);
 	}
 	this.canvasContext.restore();
@@ -67,6 +70,7 @@ Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 		var step = ray[s];
 
 		if (s === hit) {
+			this.renderZIndexes[column] = step.distance;
 			var textureX = Math.floor(texture.width * step.offset);
 			var wall = this.project(step.height, angle, step.distance);
 
@@ -92,7 +96,7 @@ Renderer.prototype.project = function(height, angle, distance) {
 };
 
 // Will render a list of static objects
-Renderer.prototype.renderList = function( list ){
+Renderer.prototype.render2dList = function( list ){
 	if( list.hasObjects() )
 	{
 		var objects = list.getObjects();
@@ -108,7 +112,60 @@ Renderer.prototype.renderList = function( list ){
 			);
 		}
 	}
+};
+
+// Returns the proper offset for wrapped radians
+Renderer.prototype.wrappedOffset = function( radian ){
+	return (radian+Math.PI*2)%(2*Math.PI);
 }
+
+// Will render an object with respects to the zindex of the world
+Renderer.prototype.render3dList = function( camera, list ){
+	if( list.hasObjects() )
+	{
+		var objects = list.getObjects();
+		for( index in objects )
+		{
+			var sObj = objects[index]; 
+
+			// Find the distance from the camera
+			var distance = Math.abs( Math.sqrt( 
+				Math.pow( camera.position.x-sObj.position.x, 2 ) +
+				Math.pow( camera.position.y-sObj.position.y, 2 )  ) );
+
+			if( distance > this.renderRange )
+				continue;
+			//console.log( distance );
+
+			// Find out if the object is in the viewframe of the player
+			var angle = this.wrappedOffset(Math.atan2((sObj.position.y-camera.position.y),(sObj.position.x-camera.position.x)))-camera.direction;
+			//console.log( this.wrappedOffset(Math.atan2((sObj.position.y-camera.position.y),(sObj.position.x-camera.position.x))), camera.direction );
+			//console.log( angle );
+
+			// If object is in viewframe then find relative x
+			if( angle > -(.5*camera.fov) && angle < .5*camera.fov )
+			{
+				//console.log( "Render Object", angle );
+				var relativeX = (angle+camera.fov*.5)/camera.fov;
+				//console.log( Math.floor(relativeX*this.resolution) );
+
+				if( this.renderZIndexes[Math.floor(relativeX*this.resolution)] < distance )
+				{
+					continue;
+				}
+
+				// Draw image column by column honoring depths information
+				this.canvasContext.drawImage( 
+					sObj.bitmap.image, 
+					(relativeX*this.size.x)-((sObj.bitmap.width/distance)/2), 
+					this.size.y/2-((sObj.bitmap.height/distance)/2),
+					sObj.bitmap.image.width  / distance, 
+					sObj.bitmap.image.height / distance
+				);
+			}
+		}
+	}
+};
 
 // Will render a scene given a provided map and a camera
 Renderer.prototype.renderScene = function( camera, map )

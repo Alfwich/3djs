@@ -28,12 +28,13 @@ $("document").ready( function(){
 	display = $("#display")[0];
 
 	// Player Object
-	player = new Player(15.3, -1.2, Math.PI * 0.3 );
+	player = new Player(15.3, -1.2, Math.PI * 1 );
 	player.camera = new Camera( player.position.x, player.position.y, player.direction, Math.PI * 0.4 );
 	controls = new Controls();
 
 	// Map
 	map = new Map(32);
+	map.randomize();
 
 	// Renderer
 	renderer = new Renderer( display, 300 ); 
@@ -46,6 +47,9 @@ $("document").ready( function(){
 	backList = new RenderList();
 	frontList = new RenderList();
 
+	// 3d Object Render List
+	mainList = new RenderList();
+
 	// Player Arm
 	/*
 	playerWeapon = new StaticObject( "cocktail_arm.png" );
@@ -53,9 +57,15 @@ $("document").ready( function(){
 	playerWeapon.setScale( 0.25, 0.25 );
 	frontList.addObject( playerWeapon );
 	*/
+	
+	for( var i = 0; i < 1000; i++ )
+	{
+		var testCircle = new StaticObject( "test_circle.png" );
+		testCircle.setPosition( Math.random() * 32, Math.random() * 32 );
+		mainList.addObject( testCircle );
+	}
 
-	map.randomize();
-	//map.wallGrid[16] = 1;
+
 	
 
 	loop.start(function frame(seconds) {
@@ -66,8 +76,11 @@ $("document").ready( function(){
 		// Render the scene through the player's camera
 		renderer.renderScene( player.camera, map );
 
-		// Render static objects
-		renderer.renderList( frontList );
-		renderer.renderList( backList );
+		// Render 3d objects in the world
+		renderer.render3dList( player.camera, mainList );
+
+		// Render static 2d objects
+		renderer.render2dList( frontList );
+		renderer.render2dList( backList );
 	});
 })

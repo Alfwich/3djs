@@ -7,15 +7,14 @@ function Map(size) {
 	this.size = size;
 	this.wallGrid = new Uint8Array(size * size);
 	this.skybox = new Bitmap('interior_background.png');
-	this.wallTexture = new Bitmap('wall_texture.jpg', 1024, 1024);
-	this.scale = 1;
+	this.wallTexture = new Bitmap('wall_texture.jpg');
 	this.light = 0;
 }
 
 // Returns the height at a given point
 Map.prototype.get = function(x, y) {
-	x = Math.floor(x/this.scale);
-	y = Math.floor(y/this.scale);
+	x = Math.floor(x);
+	y = Math.floor(y);
 	if (x < 0 || x > this.size - 1 || y < 0 || y > this.size - 1) return -1;
 	return this.wallGrid[y * this.size + x];
 };
