@@ -37,7 +37,7 @@ $("document").ready( function(){
 
 	// Renderer
 	renderer = new Renderer( display, 300 ); 
-	renderer.renderRange = 10;
+	renderer.renderRange = 20;
 	renderer.lightRange = 5;
 	renderer.fogColor = "#333333";
 	loop = new GameLoop();
@@ -55,6 +55,8 @@ $("document").ready( function(){
 	*/
 
 	map.randomize();
+	//map.wallGrid[16] = 1;
+	
 
 	loop.start(function frame(seconds) {
 		

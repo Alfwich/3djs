@@ -48,7 +48,7 @@ Player.prototype.update = function(controls, map, seconds) {
 	if (controls.states.rotate_left) this.rotate(-Math.PI * seconds);
 	if (controls.states.rotate_right) this.rotate(Math.PI * seconds);
 
-	this.rotate( Math.PI * controls.getMouseMovement() );
+	//this.rotate( Math.PI * controls.getMouseMovement() );
 
 	if (controls.states.left) this.sidestep( 3 * seconds, map );
 	if (controls.states.right) this.sidestep( -3 * seconds, map );
