@@ -57,10 +57,11 @@ $("document").ready( function(){
 	playerWeapon.setScale( 0.25, 0.25 );
 	frontList.addObject( playerWeapon );
 	*/
-	
-	for( var i = 0; i < 1000; i++ )
+
+	for( var i = 0; i < 100; i++ )
 	{
 		var testCircle = new StaticObject( "test_circle.png" );
+		//testCircle.setPosition( -1, -1 );
 		testCircle.setPosition( Math.random() * 32, Math.random() * 32 );
 		mainList.addObject( testCircle );
 	}

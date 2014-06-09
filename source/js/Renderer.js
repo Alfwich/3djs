@@ -147,21 +147,54 @@ Renderer.prototype.render3dList = function( camera, list ){
 			{
 				//console.log( "Render Object", angle );
 				var relativeX = (angle+camera.fov*.5)/camera.fov;
+				var bitmapWidth = (sObj.bitmap.image.width/distance);
+				var bitmapHeight = (sObj.bitmap.image.height/distance);
+				var firstColumn = Math.floor( ((relativeX*this.size.x)-bitmapWidth/2)/this.spacing );
+				var lastColumn = Math.floor( firstColumn+(bitmapWidth/this.spacing) );
+				var pixelsPerColumn = sObj.bitmap.image.width/(lastColumn-firstColumn);
+				//console.log( firstColumn, lastColumn, pixelsPerColumn );
+
 				//console.log( Math.floor(relativeX*this.resolution) );
 
-				if( this.renderZIndexes[Math.floor(relativeX*this.resolution)] < distance )
+				for( var column = firstColumn; column <= lastColumn; column++ )
 				{
-					continue;
-				}
 
-				// Draw image column by column honoring depths information
-				this.canvasContext.drawImage( 
-					sObj.bitmap.image, 
-					(relativeX*this.size.x)-((sObj.bitmap.width/distance)/2), 
-					this.size.y/2-((sObj.bitmap.height/distance)/2),
-					sObj.bitmap.image.width  / distance, 
-					sObj.bitmap.image.height / distance
-				);
+					//var zIndex = Math.floor(relativeX*this.resolution);
+					//console.log( column );
+
+					if( column<0 || column > this.resolution || this.renderZIndexes[column] < distance )
+					{
+						continue;
+					}
+
+					// Update the Z-Index to this objects index
+					this.renderZIndexes[column] = distance;
+
+					this.canvasContext.drawImage(
+						sObj.bitmap.image,
+
+						// Bitmap Clip X
+						// Bitmap Clip Y
+						(column-firstColumn)*pixelsPerColumn,
+						0,
+
+						// Width of cipped image
+						// Height of clippled image
+						pixelsPerColumn,
+						sObj.bitmap.height,
+
+						// x to position
+						// y to position
+						column*this.spacing,
+						this.size.y/2-((sObj.bitmap.height/distance)/2),
+
+						// width of dest
+						// height of dest
+						this.spacing,
+						bitmapHeight
+
+					);
+				}
 			}
 		}
 	}
