@@ -3,43 +3,45 @@
 // 6/5/2014
 
 // Constructor for renderer object
-var Renderer = function( canvasContext, resolution )
+var Renderer = function( canvasContext, _renderResolution )
 {
 	// Setup rendering attributes
-	this.size = { "x": window.innerWidth * 0.5, "y": window.innerHeight * 0.5 };
+	this._size = { "x": window.innerWidth * 0.5, "y": window.innerHeight * 0.5 };
+	this._renderResolution = _renderResolution;
+	this._renderSpacing = this._size.x/_renderResolution;
+	this._zIndexes = new Float32Array( _renderResolution );
+	this._rayTracer = new RayTracer();
+
+	// Modifyable render parameters
 	this.renderRange = 10;
-	this.resolution = resolution;
-	this.spacing = this.size.x/resolution;
-	this.scale = (this.size.x+this.size.y)/1200;
-	this.tracer = new RayTracer();
-	this.renderZIndexes = new Float32Array( resolution );
+	this.renderScale = 1;
 
 	// Fog
-	this.fogColor = "#000000";
-	this.fogRange = 5;
+	this.renderFogColor = "#000000";
+	this.renderFogRange = 5;
 
 	// Setup canvas
 	this.canvasContext = canvasContext.getContext( "2d" );
-	canvasContext.width = this.size.x;
-	canvasContext.height = this.size.y;
+	canvasContext.width = this._size.x;
+	canvasContext.height = this._size.y;
 }
 
-Renderer.prototype.changeResolution = function( resolution ){
-	this.resolution = resolution;
-	this.renderZIndexes = new Float32Array( resolution );
-	this.spacing = this.size.x/this.resolution;
+Renderer.prototype.changeResolution = function( _renderResolution ){
+	this._renderResolution = _renderResolution;
+	this._zIndexes = new Float32Array( _renderResolution );
+	this._renderSpacing = this._size.x/this._renderResolution;
 }
 
 // Draws the sky 
 Renderer.prototype.drawSky = function(camera, map) {
-	var width = this.size.x * (CIRCLE / camera.fov);
+	var width = this._size.x * (CIRCLE / camera.fov);
 	var left = -width * camera.direction / CIRCLE;
 
 	this.canvasContext.save();
-	this.canvasContext.drawImage(map.skybox.image, left, 0, width, this.size.y);
-	if (left < width - this.size.x) 
+	this.canvasContext.drawImage(map.skybox.image, left, 0, width, this._size.y);
+	if (left < width - this._size.x) 
 	{
-		this.canvasContext.drawImage(map.skybox.image, left + width, 0, width, this.size.y);
+		this.canvasContext.drawImage(map.skybox.image, left + width, 0, width, this._size.y);
 	}
 
 	this.canvasContext.restore();
@@ -48,10 +50,10 @@ Renderer.prototype.drawSky = function(camera, map) {
 // Draws faux 3d columns
 Renderer.prototype.drawColumns = function(camera, map) {
 	this.canvasContext.save();
-	for (var column = 0; column < this.resolution; column++) {
-		this.renderZIndexes[column] = Infinity;
-		var angle = camera.fov * (column / this.resolution - 0.5);
-		var ray = this.tracer.cast( map, camera, angle, this.renderRange);
+	for (var column = 0; column < this._renderResolution; column++) {
+		this._zIndexes[column] = Infinity;
+		var angle = camera.fov * (column / this._renderResolution - 0.5);
+		var ray = this._rayTracer.cast( map, camera, angle, this.renderRange);
 		this.drawColumn(column, ray, angle, map);
 	}
 	this.canvasContext.restore();
@@ -60,8 +62,8 @@ Renderer.prototype.drawColumns = function(camera, map) {
 Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 	var canvasContext = this.canvasContext;
 	var texture = map.wallTexture;
-	var left = Math.floor(column * this.spacing);
-	var width = Math.ceil(this.spacing);
+	var left = Math.floor(column * this._renderSpacing);
+	var width = Math.ceil(this._renderSpacing);
 	var hit = -1;
 
 	while (++hit < ray.length && ray[hit].height <= 0);
@@ -70,15 +72,15 @@ Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 		var step = ray[s];
 
 		if (s === hit) {
-			this.renderZIndexes[column] = step.distance;
+			this._zIndexes[column] = step.distance*this.renderScale;
 			var textureX = Math.floor(texture.width * step.offset);
 			var wall = this.project(step.height, angle, step.distance);
 
 			canvasContext.globalAlpha = 1;
 			canvasContext.drawImage(texture.image, textureX, 0, 1, texture.height, left, wall.top, width, wall.height);
 			
-			canvasContext.fillStyle = this.fogColor;
-			canvasContext.globalAlpha = Math.max((step.distance + step.shading) / this.fogRange - map.light, 0);
+			canvasContext.fillStyle = this.renderFogColor;
+			canvasContext.globalAlpha = Math.max((step.distance + step.shading) / this.renderFogRange - ( map.light * this.renderScale ), 0);
 			canvasContext.fillRect(left, wall.top, width, wall.height);
 		}
 	}
@@ -86,9 +88,9 @@ Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 
 // Returns the required top and height of a wall column
 Renderer.prototype.project = function(height, angle, distance) {
-	var z = distance * Math.cos(angle);
-	var wallHeight = this.size.y * height / z;
-	var bottom = this.size.y / 2 * (1 + 1 / z);
+	var z = distance * Math.cos(angle)*this.renderScale;
+	var wallHeight = this._size.y * height / z;
+	var bottom = this._size.y / 2 * (1 + 1 / z);
 	return {
 		top: bottom - wallHeight,
 		height: wallHeight
@@ -96,7 +98,7 @@ Renderer.prototype.project = function(height, angle, distance) {
 };
 
 // Will render a list of static objects
-Renderer.prototype.render2dList = function( list ){
+Renderer.prototype.draw2dList = function( list ){
 	if( list.hasObjects() )
 	{
 		var objects = list.getObjects();
@@ -120,7 +122,7 @@ Renderer.prototype.wrappedOffset = function( radian ){
 }
 
 // Will render an object with respects to the zindex of the world
-Renderer.prototype.render3dList = function( camera, list ){
+Renderer.prototype.draw3dList = function( camera, list ){
 	if( list.hasObjects() )
 	{
 		var objects = list.getObjects();
@@ -131,45 +133,42 @@ Renderer.prototype.render3dList = function( camera, list ){
 			// Find the distance from the camera
 			var distance = Math.abs( Math.sqrt( 
 				Math.pow( camera.position.x-sObj.position.x, 2 ) +
-				Math.pow( camera.position.y-sObj.position.y, 2 )  ) );
+				Math.pow( camera.position.y-sObj.position.y, 2 )  ) )*this.renderScale;
 
 			if( distance > this.renderRange )
 				continue;
-			//console.log( distance );
 
 			// Find out if the object is in the viewframe of the player
 			var objectAngle = this.wrappedOffset(Math.atan2((sObj.position.y-camera.position.y),(sObj.position.x-camera.position.x)));
 
 			// Get the difference between the camera angle and the object angle
 			var angle = Math.atan2(Math.sin(objectAngle-camera.direction), Math.cos(objectAngle-camera.direction));
-			//console.log( angle );
 
 			// If object is in viewframe then find relative x
 			if( angle > -(.5*camera.fov) && angle < .5*camera.fov )
 			{
-				//console.log( "Render Object", angle );
+				//angle = Math.cos(angle);
 				var relativeX = (angle+camera.fov*.5)/camera.fov;
 				var bitmapWidth = (sObj.bitmap.image.width/distance);
 				var bitmapHeight = (sObj.bitmap.image.height/distance);
 
 				// Drawing variables
-				var drawX =  ((relativeX*this.size.x)-bitmapWidth/2);
+				var drawX =  ((relativeX*this._size.x)-bitmapWidth/2);
 				var startX = drawX;
-				var finalX = ((relativeX*this.size.x)+bitmapWidth/2);
-				//console.log( drawX, finalX );
+				var finalX = ((relativeX*this._size.x)+bitmapWidth/2);
 
 				while( drawX < finalX )
 				{
-					var column = Math.floor(drawX/this.spacing);
-					var nextColumn = (column+1)*this.spacing
+					var column = Math.floor(drawX/this._renderSpacing);
+					var nextColumn = (column+1)*this._renderSpacing
 					var drawSlice = nextColumn-drawX;
 
 					// Sometimes the floating point garbage causes 0 drawSlice issues
 					// resolve by forcing a draw of the column width
 					if( drawSlice == 0 )
 					{
-						drawSlice = this.spacing;
-						nextColumn += this.spacing;
+						drawSlice = this._renderSpacing;
+						nextColumn += this._renderSpacing;
 					}
 
 					// If this is the final draw then only draw to the end of the bitmap
@@ -178,7 +177,7 @@ Renderer.prototype.render3dList = function( camera, list ){
 						drawSlice = finalX-drawX;	
 					}
 
-					if( column<0 || column > this.resolution || this.renderZIndexes[column] < distance )
+					if( column<0 || column > this._renderResolution || this._zIndexes[column] < distance )
 					{
 						drawX = nextColumn;
 						continue;
@@ -200,7 +199,7 @@ Renderer.prototype.render3dList = function( camera, list ){
 						// x to position
 						// y to position
 						drawX,
-						this.size.y/2-(((sObj.bitmap.height+sObj.offset.y)/distance)/2),
+						this._size.y/2-(((sObj.bitmap.height+sObj.offset.y)/distance)/2),
 
 						// width of dest
 						// height of dest
@@ -210,61 +209,13 @@ Renderer.prototype.render3dList = function( camera, list ){
 					);
 					drawX = nextColumn;
 				}
-
-				/*
-				var bitmapWidth = (sObj.bitmap.image.width/distance);
-				var bitmapHeight = (sObj.bitmap.image.height/distance);
-				var firstColumn = Math.floor( ((relativeX*this.size.x)-bitmapWidth/2)/this.spacing );
-				var lastColumn = Math.floor( firstColumn+(bitmapWidth/this.spacing) );
-				var xOffset = (relativeX*this.size.x)-(firstColumn*this.spacing);
-				var pixelsPerColumn = sObj.bitmap.width/(lastColumn-firstColumn);
-				console.log( xOffset, this.spacing );
-				//console.log( firstColumn, lastColumn, pixelsPerColumn );
-				//console.log( Math.floor(relativeX*this.resolution) );
-
-				for( var column = firstColumn; column <= lastColumn; column++ )
-				{
-					if( column<0 || column > this.resolution || this.renderZIndexes[column] < distance )
-					{
-						continue;
-					}
-
-					// Update the Z-Index to this objects index
-					this.renderZIndexes[column] = distance;
-
-					this.canvasContext.drawImage(
-						sObj.bitmap.image,
-
-						// Bitmap Clip X
-						// Bitmap Clip Y
-						(column-firstColumn)*pixelsPerColumn,
-						0,
-
-						// Width of cipped image
-						// Height of clippled image
-						pixelsPerColumn,
-						sObj.bitmap.height,
-
-						// x to position
-						// y to position
-						(column*this.spacing)+xOffset,
-						this.size.y/2-(((sObj.bitmap.height+sObj.offset.y)/distance)/2),
-
-						// width of dest
-						// height of dest
-						this.spacing,
-						bitmapHeight
-
-					);
-				}
-				*/
 			}
 		}
 	}
 };
 
 // Will render a scene given a provided map and a camera
-Renderer.prototype.renderScene = function( camera, map )
+Renderer.prototype.drawScene = function( camera, map )
 {
 	if( camera == null || map == null )
 	{

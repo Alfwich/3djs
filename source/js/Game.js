@@ -76,13 +76,13 @@ $("document").ready( function(){
 		player.update( controls, map, seconds );
 
 		// Render the scene through the player's camera
-		renderer.renderScene( player.camera, map );
+		renderer.drawScene( player.camera, map );
 
 		// Render 3d objects in the world
-		renderer.render3dList( player.camera, mainList );
+		renderer.draw3dList( player.camera, mainList );
 
 		// Render static 2d objects
-		renderer.render2dList( frontList );
-		renderer.render2dList( backList );
+		renderer.draw2dList( frontList );
+		renderer.draw2dList( backList );
 	});
 })
