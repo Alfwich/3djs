@@ -34,7 +34,8 @@ $("document").ready( function(){
 
 	// Map
 	map = new Map(32);
-	map.randomize();
+	map.set( 0, 0, 1 );
+	//map.randomize();
 
 	// Renderer
 	renderer = new Renderer( display, 300 ); 
@@ -58,16 +59,14 @@ $("document").ready( function(){
 	frontList.addObject( playerWeapon );
 	*/
 
-	for( var i = 0; i < 100; i++ )
+	for( var i = 0; i < 1; i++ )
 	{
-		var testCircle = new StaticObject( "test_circle.png" );
-		//testCircle.setPosition( -1, -1 );
-		testCircle.setPosition( Math.random() * 32, Math.random() * 32 );
+		testCircle = new StaticObject( "test_circle.png" );
+		testCircle.setPosition( -1, -1 );
+		//testCircle.setPosition( Math.random() * 32, Math.random() * 32 );
+		testCircle.setOffset( 0, -500 );
 		mainList.addObject( testCircle );
 	}
-
-
-	
 
 	loop.start(function frame(seconds) {
 		

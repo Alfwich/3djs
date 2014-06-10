@@ -138,8 +138,10 @@ Renderer.prototype.render3dList = function( camera, list ){
 			//console.log( distance );
 
 			// Find out if the object is in the viewframe of the player
-			var angle = this.wrappedOffset(Math.atan2((sObj.position.y-camera.position.y),(sObj.position.x-camera.position.x)))-camera.direction;
-			//console.log( this.wrappedOffset(Math.atan2((sObj.position.y-camera.position.y),(sObj.position.x-camera.position.x))), camera.direction );
+			var objectAngle = this.wrappedOffset(Math.atan2((sObj.position.y-camera.position.y),(sObj.position.x-camera.position.x)));
+
+			// Get the difference between the camera angle and the object angle
+			var angle = Math.atan2(Math.sin(objectAngle-camera.direction), Math.cos(objectAngle-camera.direction));
 			//console.log( angle );
 
 			// If object is in viewframe then find relative x
@@ -151,17 +153,14 @@ Renderer.prototype.render3dList = function( camera, list ){
 				var bitmapHeight = (sObj.bitmap.image.height/distance);
 				var firstColumn = Math.floor( ((relativeX*this.size.x)-bitmapWidth/2)/this.spacing );
 				var lastColumn = Math.floor( firstColumn+(bitmapWidth/this.spacing) );
-				var pixelsPerColumn = sObj.bitmap.image.width/(lastColumn-firstColumn);
+				var xOffset = (relativeX*this.size.x)-(firstColumn*this.spacing);
+				var pixelsPerColumn = sObj.bitmap.width/(lastColumn-firstColumn);
+				console.log( xOffset, this.spacing );
 				//console.log( firstColumn, lastColumn, pixelsPerColumn );
-
 				//console.log( Math.floor(relativeX*this.resolution) );
 
 				for( var column = firstColumn; column <= lastColumn; column++ )
 				{
-
-					//var zIndex = Math.floor(relativeX*this.resolution);
-					//console.log( column );
-
 					if( column<0 || column > this.resolution || this.renderZIndexes[column] < distance )
 					{
 						continue;
@@ -185,8 +184,8 @@ Renderer.prototype.render3dList = function( camera, list ){
 
 						// x to position
 						// y to position
-						column*this.spacing,
-						this.size.y/2-((sObj.bitmap.height/distance)/2),
+						(column*this.spacing)+xOffset,
+						this.size.y/2-(((sObj.bitmap.height+sObj.offset.y)/distance)/2),
 
 						// width of dest
 						// height of dest
