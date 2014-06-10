@@ -151,6 +151,69 @@ Renderer.prototype.render3dList = function( camera, list ){
 				var relativeX = (angle+camera.fov*.5)/camera.fov;
 				var bitmapWidth = (sObj.bitmap.image.width/distance);
 				var bitmapHeight = (sObj.bitmap.image.height/distance);
+
+				// Drawing variables
+				var drawX =  ((relativeX*this.size.x)-bitmapWidth/2);
+				var startX = drawX;
+				var finalX = ((relativeX*this.size.x)+bitmapWidth/2);
+				//console.log( drawX, finalX );
+
+				while( drawX < finalX )
+				{
+					var column = Math.floor(drawX/this.spacing);
+					var nextColumn = (column+1)*this.spacing
+					var drawSlice = nextColumn-drawX;
+
+					// Sometimes the floating point garbage causes 0 drawSlice issues
+					// resolve by forcing a draw of the column width
+					if( drawSlice == 0 )
+					{
+						drawSlice = this.spacing;
+						nextColumn += this.spacing;
+					}
+
+					// If this is the final draw then only draw to the end of the bitmap
+					if( drawX+drawSlice > finalX )
+					{
+						drawSlice = finalX-drawX;	
+					}
+
+					if( column<0 || column > this.resolution || this.renderZIndexes[column] < distance )
+					{
+						drawX = nextColumn;
+						continue;
+					}
+
+					this.canvasContext.drawImage(
+						sObj.bitmap.image,
+
+						// Bitmap Clip X
+						// Bitmap Clip Y
+						(drawX-startX)*distance,
+						0,
+
+						// Width of cipped image
+						// Height of clippled image
+						drawSlice*distance,
+						sObj.bitmap.height,
+
+						// x to position
+						// y to position
+						drawX,
+						this.size.y/2-(((sObj.bitmap.height+sObj.offset.y)/distance)/2),
+
+						// width of dest
+						// height of dest
+						drawSlice,
+						bitmapHeight
+
+					);
+					drawX = nextColumn;
+				}
+
+				/*
+				var bitmapWidth = (sObj.bitmap.image.width/distance);
+				var bitmapHeight = (sObj.bitmap.image.height/distance);
 				var firstColumn = Math.floor( ((relativeX*this.size.x)-bitmapWidth/2)/this.spacing );
 				var lastColumn = Math.floor( firstColumn+(bitmapWidth/this.spacing) );
 				var xOffset = (relativeX*this.size.x)-(firstColumn*this.spacing);
@@ -194,6 +257,7 @@ Renderer.prototype.render3dList = function( camera, list ){
 
 					);
 				}
+				*/
 			}
 		}
 	}

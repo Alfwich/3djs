@@ -34,6 +34,8 @@ $("document").ready( function(){
 
 	// Map
 	map = new Map(32);
+	map.skybox = new Bitmap( "outdoor_background.png" );
+	map.wallTexture = new Bitmap( "wall_texture.jpg" );
 	map.set( 0, 0, 1 );
 	//map.randomize();
 
@@ -58,14 +60,14 @@ $("document").ready( function(){
 	playerWeapon.setScale( 0.25, 0.25 );
 	frontList.addObject( playerWeapon );
 	*/
-
-	for( var i = 0; i < 1; i++ )
+	var flairImages = [ "flower1.png", "flower2.png", "weed.png", "grass.png" ];
+	for( var i = 0; i < 100; i++ )
 	{
-		testCircle = new StaticObject( "test_circle.png" );
-		testCircle.setPosition( -1, -1 );
-		//testCircle.setPosition( Math.random() * 32, Math.random() * 32 );
-		testCircle.setOffset( 0, -500 );
-		mainList.addObject( testCircle );
+		var flair = new StaticObject( flairImages[Math.floor( Math.random()*flairImages.length)]);
+		//flair.setPosition( -1, -1 );
+		flair.setPosition( (Math.random() * 20)-10, (Math.random() * 20)-10 );
+		flair.setOffset( 0, -225 );
+		mainList.addObject( flair );
 	}
 
 	loop.start(function frame(seconds) {
