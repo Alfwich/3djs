@@ -41,9 +41,8 @@ $("document").ready( function(){
 
 	// Renderer
 	renderer = new Renderer( display, 300 ); 
-	renderer.renderRange = 20;
-	renderer.lightRange = 5;
-	renderer.fogColor = "#333333";
+	renderer.render.range = 20;
+	renderer.render.fog.color = "#333333";
 	loop = new GameLoop();
 
 	// Render Lists

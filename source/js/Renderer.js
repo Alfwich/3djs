@@ -11,17 +11,20 @@ var Renderer = function( canvasContext, _renderResolution )
 	this._renderSpacing = this._size.x/_renderResolution;
 	this._zIndexes = new Float32Array( _renderResolution );
 	this._rayTracer = new RayTracer();
+	this._canvasContext = canvasContext.getContext( "2d" );
 
+	// Setup renderer render attributes
+	this.render = {};
 	// Modifyable render parameters
-	this.renderRange = 10;
-	this.renderScale = 1;
+	this.render.range = 10;
+	this.render.scale = 1;
 
 	// Fog
-	this.renderFogColor = "#000000";
-	this.renderFogRange = 5;
+	this.render.fog = {};
+	this.render.fog.color = "#000000";
+	this.render.fog.range = 5;
 
 	// Setup canvas
-	this.canvasContext = canvasContext.getContext( "2d" );
 	canvasContext.width = this._size.x;
 	canvasContext.height = this._size.y;
 }
@@ -37,30 +40,30 @@ Renderer.prototype.drawSky = function(camera, map) {
 	var width = this._size.x * (CIRCLE / camera.fov);
 	var left = -width * camera.direction / CIRCLE;
 
-	this.canvasContext.save();
-	this.canvasContext.drawImage(map.skybox.image, left, 0, width, this._size.y);
+	this._canvasContext.save();
+	this._canvasContext.drawImage(map.skybox.image, left, 0, width, this._size.y);
 	if (left < width - this._size.x) 
 	{
-		this.canvasContext.drawImage(map.skybox.image, left + width, 0, width, this._size.y);
+		this._canvasContext.drawImage(map.skybox.image, left + width, 0, width, this._size.y);
 	}
 
-	this.canvasContext.restore();
+	this._canvasContext.restore();
 };
 
 // Draws faux 3d columns
 Renderer.prototype.drawColumns = function(camera, map) {
-	this.canvasContext.save();
+	this._canvasContext.save();
 	for (var column = 0; column < this._renderResolution; column++) {
 		this._zIndexes[column] = Infinity;
 		var angle = camera.fov * (column / this._renderResolution - 0.5);
-		var ray = this._rayTracer.cast( map, camera, angle, this.renderRange);
+		var ray = this._rayTracer.cast( map, camera, angle, this.render.range);
 		this.drawColumn(column, ray, angle, map);
 	}
-	this.canvasContext.restore();
+	this._canvasContext.restore();
 };
 
 Renderer.prototype.drawColumn = function(column, ray, angle, map) {
-	var canvasContext = this.canvasContext;
+	var canvasContext = this._canvasContext;
 	var texture = map.wallTexture;
 	var left = Math.floor(column * this._renderSpacing);
 	var width = Math.ceil(this._renderSpacing);
@@ -72,15 +75,15 @@ Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 		var step = ray[s];
 
 		if (s === hit) {
-			this._zIndexes[column] = step.distance*this.renderScale;
+			this._zIndexes[column] = step.distance*this.render.scale;
 			var textureX = Math.floor(texture.width * step.offset);
 			var wall = this.project(step.height, angle, step.distance);
 
 			canvasContext.globalAlpha = 1;
 			canvasContext.drawImage(texture.image, textureX, 0, 1, texture.height, left, wall.top, width, wall.height);
 			
-			canvasContext.fillStyle = this.renderFogColor;
-			canvasContext.globalAlpha = Math.max((step.distance + step.shading) / this.renderFogRange - ( map.light * this.renderScale ), 0);
+			canvasContext.fillStyle = this.render.fog.color;
+			canvasContext.globalAlpha = Math.max((step.distance + step.shading) / this.render.fog.range - ( map.light * this.render.scale ), 0);
 			canvasContext.fillRect(left, wall.top, width, wall.height);
 		}
 	}
@@ -88,7 +91,7 @@ Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 
 // Returns the required top and height of a wall column
 Renderer.prototype.project = function(height, angle, distance) {
-	var z = distance * Math.cos(angle)*this.renderScale;
+	var z = distance * Math.cos(angle)*this.render.scale;
 	var wallHeight = this._size.y * height / z;
 	var bottom = this._size.y / 2 * (1 + 1 / z);
 	return {
@@ -105,7 +108,7 @@ Renderer.prototype.draw2dList = function( list ){
 		for( index in objects )
 		{
 			var sObj = objects[index]; 
-			this.canvasContext.drawImage( 
+			this._canvasContext.drawImage( 
 				sObj.bitmap.image, 
 				sObj.position.x + sObj.offset.x, 
 				sObj.position.y + sObj.offset.y,
@@ -133,9 +136,9 @@ Renderer.prototype.draw3dList = function( camera, list ){
 			// Find the distance from the camera
 			var distance = Math.abs( Math.sqrt( 
 				Math.pow( camera.position.x-sObj.position.x, 2 ) +
-				Math.pow( camera.position.y-sObj.position.y, 2 )  ) )*this.renderScale;
+				Math.pow( camera.position.y-sObj.position.y, 2 )  ) )*this.render.scale;
 
-			if( distance > this.renderRange )
+			if( distance > this.render.range )
 				continue;
 
 			// Find out if the object is in the viewframe of the player
@@ -183,7 +186,7 @@ Renderer.prototype.draw3dList = function( camera, list ){
 						continue;
 					}
 
-					this.canvasContext.drawImage(
+					this._canvasContext.drawImage(
 						sObj.bitmap.image,
 
 						// Bitmap Clip X
