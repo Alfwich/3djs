@@ -3,13 +3,13 @@
 // 6/5/2014
 
 // Constructor for renderer object
-var Renderer = function( canvasContext, _renderResolution )
+var Renderer = function( canvasContext, renderResolution )
 {
 	// Setup rendering attributes
 	this._size = { "x": window.innerWidth * 0.5, "y": window.innerHeight * 0.5 };
-	this._renderResolution = _renderResolution;
-	this._renderSpacing = this._size.x/_renderResolution;
-	this._zIndexes = new Float32Array( _renderResolution );
+	this._renderResolution = renderResolution;
+	this._renderSpacing = this._size.x/renderResolution;
+	this._zIndexes = new Float32Array( renderResolution );
 	this._rayTracer = new RayTracer();
 	this._canvasContext = canvasContext.getContext( "2d" );
 
@@ -29,16 +29,16 @@ var Renderer = function( canvasContext, _renderResolution )
 	canvasContext.height = this._size.y;
 }
 
-Renderer.prototype.changeResolution = function( _renderResolution ){
-	this._renderResolution = _renderResolution;
-	this._zIndexes = new Float32Array( _renderResolution );
-	this._renderSpacing = this._size.x/this._renderResolution;
+Renderer.prototype.changeResolution = function( renderResolution ){
+	this._renderResolution = renderResolution;
+	this._zIndexes = new Float32Array( renderResolution );
+	this._renderSpacing = this._size.x/renderResolution;
 }
 
 // Draws the sky 
 Renderer.prototype.drawSky = function(camera, map) {
-	var width = this._size.x * (CIRCLE / camera.fov);
-	var left = -width * camera.direction / CIRCLE;
+	var width = this._size.x * (Math.circle / camera.fov);
+	var left = -width * camera.direction / Math.circle;
 
 	this._canvasContext.save();
 	this._canvasContext.drawImage(map.skybox.src, left, 0, width, this._size.y);

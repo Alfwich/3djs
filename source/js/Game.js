@@ -3,26 +3,6 @@
 // 6-5-2014
 // modified from: http://www.playfuljs.com/a-first-person-engine-in-265-lines/
 // source       : http://www.playfuljs.com/demos/raycaster/
-var CIRCLE = Math.PI * 2;
-var MOBILE = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent)
-
-function GameLoop() {
-	this.frame = this.frame.bind(this);
-	this.lastTime = 0;
-	this.callback = function() {};
-}
-
-GameLoop.prototype.start = function(callback) {
-	this.callback = callback;
-	requestAnimationFrame(this.frame);
-};
-
-GameLoop.prototype.frame = function(time) {
-	var seconds = (time - this.lastTime) / 1000;
-	this.lastTime = time;
-	if (seconds < 0.2) this.callback(seconds);
-	requestAnimationFrame(this.frame);
-};
 
 $("document").ready( function(){
 	display = $("#display")[0];

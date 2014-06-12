@@ -22,7 +22,7 @@ function Player(x, y, direction, camera ) {
 
 // Rotates the player object by the provided angle
 Player.prototype.rotate = function(angle) {
-	this.direction = (this.direction + angle + CIRCLE) % (CIRCLE);
+	this.direction = (this.direction + angle + Math.circle) % (Math.circle);
 };
 
 // Moves the player forward based on their rotation in the probided map
