@@ -4,30 +4,8 @@
 
 // Constructor
 
-var RayTracer = function()
-{
+var RayTracer = function(){
 }
-/*
-RayTracer.prototype.floorToScale = function( val, scale ){
-	return Math.floor( val/scale )*scale;
-}
-
-RayTracer.prototype.ceilToScale = function( val, scale ){
-	return Math.ceil( val/scale )*scale;
-}
-
-RayTracer.prototype.deltaToNextUnitCeil = function( val, scale ){
-	var result = (Math.floor(val/scale)*scale)-val;
-	if( result==0 ){ return -scale; }
-	return result;
-}
-
-RayTracer.prototype.deltaToNextUnitFloor = function( val, scale ){
-	var result = (Math.floor((val/scale)+1)*scale)-val;
-	if( result==0 ){ return scale; }
-	return result;
-}
-*/
 
 // Will return a ray object with all of the ray data
 RayTracer.prototype.cast = function( map, camera, angle, distance )
@@ -67,7 +45,7 @@ RayTracer.prototype.cast = function( map, camera, angle, distance )
 	function inspect(step, shiftX, shiftY, distance, offset) {
 		var dx = cos < 0 ? shiftX : 0;
 		var dy = sin < 0 ? shiftY : 0;
-		step.height = map.get(step.x - dx, step.y - dy);
+		step.height = map.get(step.x - dx, step.y - dy).height;
 		step.distance = distance + Math.sqrt(step.length2);
 		if (shiftX) step.shading = cos < 0 ? 2 : 0;
 		else step.shading = sin < 0 ? 2 : 1;

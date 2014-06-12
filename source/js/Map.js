@@ -5,7 +5,7 @@
 // Returns a map object of the current world
 function Map(size) {
 	this.size = size;
-	this.heightMap = new Uint8Array(size * size);
+	this.wallArray = Wall.wallArray( size*size );
 	this.skybox = new Bitmap('outdoor_background.png');
 	this.wallTexture = new Bitmap('wall_texture.jpg');
 	this.light = 0;
@@ -15,18 +15,26 @@ function Map(size) {
 Map.prototype.get = function(x, y) {
 	x = Math.floor(x);
 	y = Math.floor(y);
-	if (x < 0 || x > this.size - 1 || y < 0 || y > this.size - 1) return -1;
-	return this.heightMap[y * this.size + x];
+	if (x < 0 || x > this.size - 1 || y < 1 || y > this.size - 1) return Wall.nullWall;
+	return this.wallArray[y * this.size + x];
 };
 
 Map.prototype.set = function(x, y, wall) {
-	this.heightMap[y * this.size + x] = wall;
+	console.log( typeof wall );
+	if( typeof wall === "number" )
+	{
+		this.wallArray[y * this.size + x].height = wall;
+	}
+	else if ( typeof wall === "object" )
+	{
+		this.wallArray[y * this.size + x] = wall;
+	}
 }
 
 // Randomizes the map with walls
 Map.prototype.randomize = function() {
 	for (var i = 0; i < this.size * this.size; i++) {
-		this.heightMap[i] = Math.random() < 0.3 ? 1 : 0;
+		this.wallArray[i].height = Math.random() < 0.3 ? 1 : 0;
 	}
 };
 

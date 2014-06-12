@@ -29,16 +29,16 @@ Player.prototype.rotate = function(angle) {
 Player.prototype.walk = function(distance, map) {
 	var dx = Math.cos(this.direction) * distance;
 	var dy = Math.sin(this.direction) * distance;
-	if (map.get(this.position.x + dx, this.position.y) <= 0) this.position.x += dx;
-	if (map.get(this.position.x, this.position.y + dy) <= 0) this.position.y += dy;
+	if (map.get(this.position.x + dx, this.position.y).height <= 0) this.position.x += dx;
+	if (map.get(this.position.x, this.position.y + dy).height <= 0) this.position.y += dy;
 };
 
 // SideStep
 Player.prototype.sidestep = function(distance, map) {
 	var dx = Math.cos(this.direction-(Math.PI/2)) * distance;
 	var dy = Math.sin(this.direction-(Math.PI/2)) * distance;
-	if (map.get(this.position.x + dx, this.position.y) <= 0) this.position.x += dx;
-	if (map.get(this.position.x, this.position.y + dy) <= 0) this.position.y += dy;
+	if (map.get(this.position.x + dx, this.position.y).height <= 0) this.position.x += dx;
+	if (map.get(this.position.x, this.position.y + dy).height <= 0) this.position.y += dy;
 };
 
 // Handler for controlling the player through control states

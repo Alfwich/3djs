@@ -41,10 +41,10 @@ Renderer.prototype.drawSky = function(camera, map) {
 	var left = -width * camera.direction / CIRCLE;
 
 	this._canvasContext.save();
-	this._canvasContext.drawImage(map.skybox.image, left, 0, width, this._size.y);
+	this._canvasContext.drawImage(map.skybox.src, left, 0, width, this._size.y);
 	if (left < width - this._size.x) 
 	{
-		this._canvasContext.drawImage(map.skybox.image, left + width, 0, width, this._size.y);
+		this._canvasContext.drawImage(map.skybox.src, left + width, 0, width, this._size.y);
 	}
 
 	this._canvasContext.restore();
@@ -80,7 +80,7 @@ Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 			var wall = this.project(step.height, angle, step.distance);
 
 			canvasContext.globalAlpha = 1;
-			canvasContext.drawImage(texture.image, textureX, 0, 1, texture.height, left, wall.top, width, wall.height);
+			canvasContext.drawImage(texture.src, textureX, 0, 1, texture.height, left, wall.top, width, wall.height);
 			
 			canvasContext.fillStyle = this.render.fog.color;
 			canvasContext.globalAlpha = Math.max((step.distance + step.shading) / this.render.fog.range - ( map.light * this.render.scale ), 0);
@@ -134,9 +134,9 @@ Renderer.prototype.draw3dList = function( camera, list ){
 			var sObj = objects[index]; 
 
 			// Find the distance from the camera
-			var distance = Math.abs( Math.sqrt( 
-				Math.pow( camera.position.x-sObj.position.x, 2 ) +
-				Math.pow( camera.position.y-sObj.position.y, 2 )  ) )*this.render.scale;
+			var xDistance = Math.pow( camera.position.x-sObj.position.x, 2 );
+			var yDistance = Math.pow( camera.position.y-sObj.position.y, 2 );
+			var distance = Math.sqrt( xDistance + yDistance );
 
 			if( distance > this.render.range )
 				continue;
@@ -152,21 +152,28 @@ Renderer.prototype.draw3dList = function( camera, list ){
 			{
 				//angle = Math.cos(angle);
 				var relativeX = (angle+camera.fov*.5)/camera.fov;
-				var bitmapWidth = (sObj.bitmap.image.width/distance);
-				var bitmapHeight = (sObj.bitmap.image.height/distance);
+				var bitmapWidth = (sObj.image.width/distance);
+				var bitmapHalfWidth = bitmapWidth/2;
+				var bitmapHeight = (sObj.image.height/distance);
 
 				// Drawing variables
-				var drawX =  ((relativeX*this._size.x)-bitmapWidth/2);
-				var startX = drawX;
-				var finalX = ((relativeX*this._size.x)+bitmapWidth/2);
+				var relativeSX = (relativeX*this._size.x);
+				var drawX =  relativeSX - bitmapHalfWidth;
+				var finalX = relativeSX + bitmapHalfWidth;
+				var yOffset = (((sObj.image.height+sObj.offset.y)/distance)/2);
+				var startX = drawX; 
 
+				// Draw until we reach the end of the bitmap
 				while( drawX < finalX )
 				{
+					// Get the next column for drawing
 					var column = Math.floor(drawX/this._renderSpacing);
 					var nextColumn = (column+1)*this._renderSpacing
+
+					// Compute the slice to be drawn
 					var drawSlice = nextColumn-drawX;
 
-					// Sometimes the floating point garbage causes 0 drawSlice issues
+					// Sometimes floating point garbage causes 0 drawSlice issues
 					// resolve by forcing a draw of the column width
 					if( drawSlice == 0 )
 					{
@@ -180,36 +187,43 @@ Renderer.prototype.draw3dList = function( camera, list ){
 						drawSlice = finalX-drawX;	
 					}
 
-					if( column<0 || column > this._renderResolution || this._zIndexes[column] < distance )
+					// If the distance of this slice is less than the current z-index then draw the column
+					if( !( column < 0 || column > this._renderResolution || this._zIndexes[column] < distance ) )
 					{
-						drawX = nextColumn;
-						continue;
+						// Update the z-index if this object sets the z-index
+						if( sObj.render.setZIndex )
+						{
+							this._zIndexes[column] = distance;
+						}
+
+						// Render the object
+						this._canvasContext.drawImage(
+							sObj.image.src,
+
+							// Bitmap Clip X
+							// Bitmap Clip Y
+							(drawX-startX)*distance,
+							0,
+
+							// Width of cipped image
+							// Height of clippled image
+							drawSlice*distance,
+							sObj.image.height,
+
+							// x to position
+							// y to position
+							drawX,
+							this._size.y/2-yOffset,
+
+							// width of dest
+							// height of dest
+							drawSlice,
+							bitmapHeight
+
+						);
 					}
 
-					this._canvasContext.drawImage(
-						sObj.bitmap.image,
-
-						// Bitmap Clip X
-						// Bitmap Clip Y
-						(drawX-startX)*distance,
-						0,
-
-						// Width of cipped image
-						// Height of clippled image
-						drawSlice*distance,
-						sObj.bitmap.height,
-
-						// x to position
-						// y to position
-						drawX,
-						this._size.y/2-(((sObj.bitmap.height+sObj.offset.y)/distance)/2),
-
-						// width of dest
-						// height of dest
-						drawSlice,
-						bitmapHeight
-
-					);
+					// Update the start of the next draw cycle
 					drawX = nextColumn;
 				}
 			}

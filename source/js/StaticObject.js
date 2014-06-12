@@ -3,11 +3,15 @@
 // 6/6/2014
 
 // Generates a new static object 
-var StaticObject = function(  bitmap ){
+var StaticObject = function(  imageSrc ){
 	this.position = { "x":0, "y":0 };
 	this.offset = { "x":0, "y":0 };
 	this.scale = { "x":1, "y":1 };
-	this.bitmap = new Bitmap( bitmap );
+	this.image = new Bitmap( imageSrc );
+
+	// Render attributes for the static object
+	this.render = {};
+	this.render.setZIndex = false;
 }
 
 StaticObject.prototype.setPosition = function( x, y ){
