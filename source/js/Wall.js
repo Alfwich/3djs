@@ -19,7 +19,6 @@ Wall.wallArray = function( size ){
 	{
 		result.push( new Wall(0) );
 	}
-	console.log( result.length );
 	return result;
 }
 

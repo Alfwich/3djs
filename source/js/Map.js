@@ -7,7 +7,6 @@ function Map(size) {
 	this.size = size;
 	this.wallArray = Wall.wallArray( size*size );
 	this.skybox = new Bitmap('outdoor_background.png');
-	this.wallTexture = new Bitmap('wall_texture.jpg');
 	this.light = 0;
 }
 
@@ -20,7 +19,6 @@ Map.prototype.get = function(x, y) {
 };
 
 Map.prototype.set = function(x, y, wall) {
-	console.log( typeof wall );
 	if( typeof wall === "number" )
 	{
 		this.wallArray[y * this.size + x].height = wall;

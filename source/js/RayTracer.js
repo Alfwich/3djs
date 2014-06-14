@@ -14,7 +14,7 @@ RayTracer.prototype.cast = function( map, camera, angle, distance )
 	var cos = Math.cos( camera.direction + angle );
 	var noWall = { length2: Infinity };
 
-	return ray({ x: camera.position.x, y: camera.position.y, height: 0, distance: 0 });
+	return ray({ x: camera.position.x, y: camera.position.y, height: 0, distance: 0, wall: map.get( camera.position.x, camera.position.y ) });
 
 	// Recursive ray-tracing function
 	// Returns an array of ray data for all unit distances from the cameras position
@@ -37,7 +37,8 @@ RayTracer.prototype.cast = function( map, camera, angle, distance )
 		return {
 			x: inverted ? y + dy : x + dx,
 			y: inverted ? x + dx : y + dy,
-			length2: dx * dx + dy * dy
+			length2: dx * dx + dy * dy,
+      wall:null
 		};
 	}
 
@@ -45,7 +46,8 @@ RayTracer.prototype.cast = function( map, camera, angle, distance )
 	function inspect(step, shiftX, shiftY, distance, offset) {
 		var dx = cos < 0 ? shiftX : 0;
 		var dy = sin < 0 ? shiftY : 0;
-		step.height = map.get(step.x - dx, step.y - dy).height;
+    step.wall = map.get(step.x - dx, step.y - dy);
+		step.height = step.wall.height;
 		step.distance = distance + Math.sqrt(step.length2);
 		if (shiftX) step.shading = cos < 0 ? 2 : 0;
 		else step.shading = sin < 0 ? 2 : 1;

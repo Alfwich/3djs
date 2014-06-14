@@ -64,7 +64,6 @@ Renderer.prototype.drawColumns = function(camera, map) {
 
 Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 	var canvasContext = this._canvasContext;
-	var texture = map.wallTexture;
 	var left = Math.floor(column * this._renderSpacing);
 	var width = Math.ceil(this._renderSpacing);
 	var hit = -1;
@@ -75,6 +74,7 @@ Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 		var step = ray[s];
 
 		if (s === hit) {
+      console.log( step );
 			this._zIndexes[column] = step.distance*this.render.scale;
 			var textureX = Math.floor(texture.width * step.offset);
 			var wall = this.project(step.height, angle, step.distance);
@@ -242,3 +242,6 @@ Renderer.prototype.drawScene = function( camera, map )
 	this.drawSky( camera, map );
 	this.drawColumns( camera, map );
 };
+
+
+/* EOF */
