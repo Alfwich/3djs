@@ -16,8 +16,7 @@ $("document").ready( function(){
 	map = new Map(32);
 	map.skybox = new Bitmap( "outdoor_background.png" );
 	map.wallTexture = new Bitmap( "wall_texture.jpg" );
-	map.set( 1, 1, 1 );
-	//map.randomize();
+	map.randomize();
 
 	// Renderer
 	renderer = new Renderer( display, 300 ); 

@@ -33,6 +33,14 @@ Map.prototype.set = function(x, y, wall) {
 Map.prototype.randomize = function() {
 	for (var i = 0; i < this.size * this.size; i++) {
 		this.wallArray[i].height = Math.random() < 0.3 ? 1 : 0;
+		if( Math.random() < 0.5 )
+		{
+			this.wallArray[i].image = new Bitmap( "wall_texture.jpg" );
+		}
+		else
+		{
+				this.wallArray[i].image = new Bitmap( "wall_texture_metal.jpg" );
+		}
 	}
 };
 

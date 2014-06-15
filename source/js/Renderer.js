@@ -74,7 +74,7 @@ Renderer.prototype.drawColumn = function(column, ray, angle, map) {
 		var step = ray[s];
 
 		if (s === hit) {
-      console.log( step );
+      var texture = step.wall.image;
 			this._zIndexes[column] = step.distance*this.render.scale;
 			var textureX = Math.floor(texture.width * step.offset);
 			var wall = this.project(step.height, angle, step.distance);
@@ -136,7 +136,7 @@ Renderer.prototype.draw3dList = function( camera, list ){
 			// Find the distance from the camera
 			var xDistance = Math.pow( camera.position.x-sObj.position.x, 2 );
 			var yDistance = Math.pow( camera.position.y-sObj.position.y, 2 );
-			var distance = Math.sqrt( xDistance + yDistance );
+			var distance = Math.sqrt( xDistance + yDistance )*this.render.scale;
 
 			if( distance > this.render.range )
 				continue;
@@ -147,7 +147,7 @@ Renderer.prototype.draw3dList = function( camera, list ){
 			// Get the difference between the camera angle and the object angle
 			var angle = Math.atan2(Math.sin(objectAngle-camera.direction), Math.cos(objectAngle-camera.direction));
 
-			// If object is in viewframe then find relative x
+			// If object is in viewframe then find relative x and render
 			if( angle > -(.5*camera.fov) && angle < .5*camera.fov )
 			{
 				//angle = Math.cos(angle);
